@@ -1,24 +1,13 @@
 import express from 'express'
+
 import AdminJS from 'adminjs'
 import AdminJSExpress from '@adminjs/express'
-import { User } from './entity/User'
-
 import { Database, Resource } from '@adminjs/typeorm'
 
-import { ApolloServer, gql } from 'apollo-server-express'
+import { User } from './entity/User'
 
-const typeDefs = gql`
-  type Query {
-    hello: String
-  }
-`;
-
-const resolvers = {
-    Query: {
-        hello: () => 'Hello world!',
-    },
-};
-
+import { typeDefs, resolvers } from './graphql'
+import { ApolloServer } from 'apollo-server-express'
 
 /**
  * Express general settings
@@ -47,8 +36,19 @@ const start = async () => {
     const admin = new AdminJS(adminOptions)
     const adminRouter = AdminJSExpress.buildRouter(admin)
 
+    /**
+     * Express server
+     */
     const app = express()
+
+    /**
+     * Express routers
+     */
     app.use(admin.options.rootPath, adminRouter)
+
+    /**
+    * Express middlewares
+    */
     apolloServer.applyMiddleware({ app });
 
     app.listen(PORT, () => {
